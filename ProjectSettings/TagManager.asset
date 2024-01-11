@@ -14,6 +14,7 @@ TagManager:
   - JudgeEndCard
   - Bullet
   - ResetButton
+  - Canvas
   layers:
   - Default
   - TransparentFX

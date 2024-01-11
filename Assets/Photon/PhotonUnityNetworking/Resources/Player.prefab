@@ -250,6 +250,7 @@ GameObject:
   - component: {fileID: 277924844155162827}
   - component: {fileID: 8051933654258259191}
   - component: {fileID: -9094241271315054346}
+  - component: {fileID: 7526019106219682190}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -379,3 +380,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: 5342335404989870252, guid: 2417786af10b4564c9b9cdf47cc75db7, type: 3}
+--- !u!114 &7526019106219682190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8734182841803227518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02d3bcbf3a3f470499bc7bd674c6ca0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  button: {fileID: -2488769709405504252, guid: 32d3fa473eeef7b4bb41dc37775830ad, type: 3}

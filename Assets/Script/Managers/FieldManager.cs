@@ -27,6 +27,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
     private PhotonView _deckPhoton;
     private Deck _deck;
     private GameObject[] players;
+    private bool isResetButtonClick;
 
 
     [SerializeField]private List<GameObject>[] fieldCardObjects=new List<GameObject>[]{new List<GameObject>(),new List<GameObject>(),
@@ -44,6 +45,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
 
     void Update()
     {
+        judgeCardsText.text=isResetButtonClick.ToString();
         // //  FieldCardsText.text=judgeCount;
         // if(!(fieldCards01==null||fieldCards02==null||fieldCards03==null||fieldCards04==null))
         // {
@@ -111,13 +113,28 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
         
         return str;
     }
+    public Vector3[] GetCardLeftPositions()
+    {
+        return CardLeftPositions;
+    }
 
+    [PunRPC]
+    public void IsResetButtonClickToFalse()
+    {
+        isResetButtonClick=false;
+        GameObject[] ResetButtons=GameObject.FindGameObjectsWithTag("ResetButton");
+        foreach(GameObject button in ResetButtons)
+        {
+            Destroy(button);
+        }
+    }
     public void Init()
     {
         fieldCards01=new int[1];
         fieldCards02=new int[1];
         fieldCards03=new int[1];
         fieldCards04=new int[1];
+        isResetButtonClick=false;
         for(int i=0;i<fieldCardObjects.Length;i++)
         {
             fieldCardObjects[i]=new List<GameObject>();
@@ -164,20 +181,18 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
     [PunRPC]
     public void Judge()
     {
+
+        StartCoroutine(JudgeCoroutine());
+        
+
+    }
+    IEnumerator JudgeCoroutine()
+    {
         GameObject[] cards=GameObject.FindGameObjectsWithTag("Card");
         foreach(GameObject c in cards)
         {
             c.GetComponent<CardClick>().enabled=false;
         }
-        StartCoroutine(JudgeCoroutine());
-        
-        foreach(GameObject c in cards)
-        {
-            c.GetComponent<CardClick>().enabled=true;
-        }
-    }
-    IEnumerator JudgeCoroutine()
-    {
         List<(int,int)> JudgeList=new List<(int,int)>();　//tupleの第1要素：プレイヤーID　第2要素：プレイしたカード
         foreach(GameObject p in players)
         {
@@ -232,20 +247,25 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
 
             if(playRowNum==-1)
             {
+                StartCoroutine(JudgeCardMoveCoroutine());
                 var pl=PhotonNetwork.PlayerList;
-                judgeCardsText.text+="A";
-                GameObject ResetButton=GameObject.FindWithTag("ResetButton");
+                
                 foreach(GameObject p in players)
                 {
                     if(p.GetComponent<PhotonView>().OwnerActorNr==player.ActorNumber)
                     {
-                        ResetButton.GetComponent<MeshRenderer>().enabled=true;
+                        p.GetComponent<GenerateResetButton>().InstantiateResetButton();
+                        //judgeCardsText.text+=p.GetComponent<PhotonView>().OwnerActorNr.ToString()+"true";
+
                     }
                     else
                     {
-                        ResetButton.GetComponent<MeshRenderer>().enabled=false;
+                        //judgeCardsText.text+=p.GetComponent<PhotonView>().OwnerActorNr.ToString()+"false";
                     }
                 }
+                isResetButtonClick=true;
+                yield return new WaitUntil(() =>!isResetButtonClick);
+                Debug.Log("a");
                 continue;
             }
             moveCardObj.tag="JudgeEndCard";
@@ -294,9 +314,16 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
                     break;
                 default:
                     break;
-            }        
+            }
+            yield return new WaitForSeconds(0.5f);        
         }
         yield return StartCoroutine(JudgeCardMoveCoroutine());
+        cards=GameObject.FindGameObjectsWithTag("Card");
+        foreach(GameObject c in cards)
+        {
+            c.GetComponent<CardClick>().enabled=true;
+        }
+        yield return null;
     }
 
     IEnumerator JudgeCardMoveCoroutine()
