@@ -125,6 +125,13 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
         GameObject[] ResetButtons=GameObject.FindGameObjectsWithTag("ResetButton");
         foreach(GameObject button in ResetButtons)
         {
+            if(button.GetComponent<ButtonInit>().GetIsClicked())
+            {
+                //プレイヤー、行を引数にとって行をリセットしてダメージを与える関数を記述
+
+                //カード移動のコルーチン
+                StartCoroutine(ResetCardCoroutine(button.GetComponent<ButtonInit>().GetButtonNumber()));
+            }
             Destroy(button);
         }
     }
@@ -265,6 +272,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
                 }
                 isResetButtonClick=true;
                 yield return new WaitUntil(() =>!isResetButtonClick);
+                //movecardObjを1列目に移動
                 Debug.Log("a");
                 continue;
             }
@@ -355,7 +363,15 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
             fieldCardObjects[_card.GetCardRow()-1].Add(cardObj);
             yield return new WaitForSeconds(0.7f);
         }
+    }
 
+    IEnumerator ResetCardCoroutine(int i)
+    {
+        foreach(GameObject c in fieldCardObjects[i])//連続でカード出すとエラー
+        {
+            c.transform.DOMove(new Vector3(c.transform.position.x-30,c.transform.position.y,c.transform.position.z),1f);
+            yield return new WaitForSeconds(0.1f);
+        }
     }
     
 

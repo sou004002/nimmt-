@@ -29,6 +29,7 @@ public class GenerateResetButton : MonoBehaviourPunCallbacks
             for(int i=0;i < cardLeftPositions.Length;i++)
             {
                 RegisterUnityAction b=Instantiate(button,parent.transform);
+                b.GetComponent<ButtonInit>().SetButtonNumber(i);
                 RectTransform rectTransform=b.GetComponent<RectTransform>();
                 Vector2 position=rectTransform.anchoredPosition;
                 position.y = 110-i*60;
