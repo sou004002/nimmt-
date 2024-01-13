@@ -22,7 +22,8 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
     [SerializeField] TextMeshProUGUI judgeCardsText;
     [SerializeField] TextMeshProUGUI judgePlayerText;
 
-
+    private bool isGameStart=false;
+    private const int MAX_PLAYERS=2;
     private GameObject deck;
     private PhotonView _deckPhoton;
     private Deck _deck;
@@ -48,31 +49,42 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
 
     void Update()
     {
+        if(PhotonNetwork.CurrentRoom.PlayerCount==MAX_PLAYERS && !isGameStart)
+        {
+            if(photonView.IsMine)
+            {
+                Init();
+            }
+            isGameStart=true;
+        }
         //judgeCardsText.text=isResetButtonClick.ToString();
         // //  FieldCardsText.text=judgeCount;
-        if(!(fieldCards01==null||fieldCards02==null||fieldCards03==null||fieldCards04==null))
+        if(isGameStart)
         {
-            FieldCardsText.text=GetFieldCards();
-        }
-        if(fieldCardObjects!=null)
-        {
-            judgeCardsText.text=GetFieldCardsObj();
-        }
-        players=GameObject.FindGameObjectsWithTag("Player");
-        if(players!=null)
-        {
-            bool judgeFlag=true;
-            foreach(GameObject p in players)
+            if(!(fieldCards01==null||fieldCards02==null||fieldCards03==null||fieldCards04==null))
             {
-                if(p.GetComponent<PlayerDraw>().GetPlayedCard()==0)
-                {
-                    judgeFlag=false;
-                }
+                FieldCardsText.text=GetFieldCards();
             }
-            if(judgeFlag)
+            if(fieldCardObjects!=null)
             {
-                photonView.RPC("Judge",RpcTarget.All);
+                judgeCardsText.text=GetFieldCardsObj();
+            }
+            players=GameObject.FindGameObjectsWithTag("Player");
+            if(players!=null)
+            {
+                bool judgeFlag=true;
+                foreach(GameObject p in players)
+                {
+                    if(p.GetComponent<PlayerDraw>().GetPlayedCard()==0)
+                    {
+                        judgeFlag=false;
+                    }
+                }
+                if(judgeFlag)
+                {
+                    photonView.RPC("Judge",RpcTarget.All);
 
+                }
             }
         }
         
@@ -236,9 +248,9 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
         // }
         isResetButtonClick=false;
     }
-    
     public void Init()
     {
+        //judgeCardsText.text+="Ini";
         fieldCards01=new int[1];
         fieldCards02=new int[1];
         fieldCards03=new int[1];
@@ -253,6 +265,8 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
         {
         _deckPhoton=deck.GetComponent<PhotonView>();
         _deck=deck.GetComponent<Deck>();
+        _deck.generateDeckArray();
+        Debug.Log(_deck.GetDecktop()==null);
         fieldCards01[0]=(_deck.GetDecktop());
         GameObject c1=PhotonNetwork.Instantiate("Card",CardLeftPositions[0],Quaternion.Euler(90,0,0));
         c1.GetComponent<PhotonView>().RPC("InitFieldCard",RpcTarget.AllBuffered,_deck.GetDecktop(),true);
@@ -290,7 +304,6 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
     [PunRPC]
     public void Judge()
     {
-
         StartCoroutine(JudgeCoroutine());
     }
     IEnumerator JudgeCoroutine()

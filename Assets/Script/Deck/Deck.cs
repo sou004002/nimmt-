@@ -62,14 +62,17 @@ public class Deck : MonoBehaviourPunCallbacks,IPunObservable
     [PunRPC]
     public void Draw(PhotonMessageInfo info)
     {
-        List<int> deckArray=new List<int>();
-        foreach(int i in intDeckArray)
+        if(intDeckArray!=null)
         {
-            deckArray.Add(i);
+            List<int> deckArray=new List<int>();
+            foreach(int i in intDeckArray)
+            {
+                deckArray.Add(i);
+            }
+            int removedCard=deckArray[0];
+            deckArray.RemoveAt(0);
+            CopyIntDeckArray(deckArray);
         }
-        int removedCard=deckArray[0];
-        deckArray.RemoveAt(0);
-        CopyIntDeckArray(deckArray);
     }
 
     // public void Draw()

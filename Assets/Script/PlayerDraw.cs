@@ -75,7 +75,7 @@ public class PlayerDraw : MonoBehaviourPunCallbacks
     {
         if(photonView.IsMine && photonView!=null)
         {
-            deck=GameObject.FindGameObjectsWithTag("Deck")[0];
+            deck=GameObject.FindWithTag("Deck");
             _deckPhoton=deck.GetComponent<PhotonView>();
             _deck=deck.GetComponent<Deck>();
             for(int i=0;i<10;i++)

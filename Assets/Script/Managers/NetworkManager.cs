@@ -38,11 +38,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         //それ以外なら、山札から手札配る
         if(playerNumber==1)
         {
-            deck=PhotonNetwork.InstantiateRoomObject("Deck",Vector3.zero,Quaternion.identity);
-            gameManager=PhotonNetwork.InstantiateRoomObject("GameManager",new Vector3(-5,-5,0),Quaternion.identity);
-            deck.GetComponent<Deck>().generateDeckArray();
-            gameManager.GetComponent<FieldManager>().Init();
+            deck=PhotonNetwork.Instantiate("Deck",Vector3.zero,Quaternion.identity);
+            gameManager=PhotonNetwork.Instantiate("GameManager",new Vector3(-5,-5,0),Quaternion.identity);
+            //deck.GetComponent<Deck>().generateDeckArray();
+            //gameManager.GetComponent<FieldManager>().Init();
         }
+        //player.GetComponent<PlayerDraw>().DrawHands(deck);
     }
     // public GameObject GetDeck()
     // {
