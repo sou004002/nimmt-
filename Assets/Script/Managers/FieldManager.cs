@@ -28,6 +28,9 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
     private Deck _deck;
     private GameObject[] players;
     private bool isResetButtonClick;
+    private Player player;
+    private List<(int,int)> JudgeList;
+    GameObject moveCardObj;
 
 
     [SerializeField]private List<GameObject>[] fieldCardObjects=new List<GameObject>[]{new List<GameObject>(),new List<GameObject>(),
@@ -121,8 +124,119 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
     [PunRPC]
     public void IsResetButtonClickToFalse()
     {
+        GameObject[] ResetButtons=GameObject.FindGameObjectsWithTag("ResetButton");
+        foreach(GameObject button in ResetButtons)
+        {
+            if(button.GetComponent<ButtonInit>().GetIsClicked())
+            {
+                int buttonIndex=button.GetComponent<ButtonInit>().GetButtonNumber();
+                if(player==null)
+                {
+                    Debug.Log("player is null");
+                }
+                int newCard=0;
+                foreach((int,int) t in JudgeList)
+                {
+                    if(t.Item1==player.ActorNumber)
+                    {
+                        newCard=t.Item2;
+                    }
+                }
+                switch(buttonIndex)
+                {
+                    case 0:
+                        player.Damage(SumDamage(fieldCards01));
+                        fieldCards01=new int[]{newCard};
+                        moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,1);   
+                        break;
+                    case 1:
+                        player.Damage(SumDamage(fieldCards02));
+                        fieldCards02=new int[]{newCard};
+                        moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,2);   
+                        break;
+                    case 2:
+                        player.Damage(SumDamage(fieldCards03));
+                        fieldCards03=new int[]{newCard};
+                        moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,3);   
+                        break;
+                    case 3:
+                        player.Damage(SumDamage(fieldCards04));
+                        fieldCards04=new int[]{newCard};
+                        moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,4);   
+                        break;
+                }
+                // foreach(GameObject c in fieldCardObjects[button.GetComponent<ButtonInit>().GetButtonNumber()])//連続でカード出すとエラー
+                // {
+                //     c.transform.DOMove(new Vector3(c.transform.position.x-30,c.transform.position.y,c.transform.position.z),1f);
+                //     yield return new WaitForSeconds(0.1f);
+                // }
+                // fieldCardObjects[button.GetComponent<ButtonInit>().GetButtonNumber()].Clear();
+            }
+            Destroy(button);
+        }
+        
+        // swtich(buttonIndex)
+        // {
+        //     case 0:
+        //         player.Damage(SumDamage(fieldCards01));
+        //         fieldCards01=new int[]{newCard};
+        //         moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,1);   
+        //         break;
+        //     case 1:
+        //         player.Damage(SumDamage(fieldCards02));
+        //         fieldCards02=new int[]{newCard};
+        //         moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,2);
+        //         break;
+        //     case 2:
+        //         player.Damage(SumDamage(fieldCards03));
+        //         fieldCards03=new int[]{newCard};
+        //         moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,3);
+
+        //         break;
+        //     case 3:
+        //         player.Damage(SumDamage(fieldCards04));
+        //         fieldCards04=new int[]{newCard};
+        //         moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,4);
+        //         break;
+        //     default:
+        //         break;
+        // }
+        // for(int j=0;j<fieldCardObjects.Length;j++)
+        // {
+        //     if(fieldCardObjects[j].Count==0)
+        //     {
+        //         Debug.Log("j: "+j);
+        //         switch(j)
+        //         {
+        //             case 0:
+        //                 player.Damage(SumDamage(fieldCards01));
+        //                 fieldCards01=new int[]{JudgeList[i].Item2};
+        //                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,1);   
+        //                 break;
+        //             case 1:
+        //                 player.Damage(SumDamage(fieldCards02));
+        //                 fieldCards02=new int[]{JudgeList[i].Item2};
+        //                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,2);
+        //                 break;
+        //             case 2:
+        //                 player.Damage(SumDamage(fieldCards03));
+        //                 fieldCards03=new int[]{JudgeList[i].Item2};
+        //                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,3);
+
+        //                 break;
+        //             case 3:
+        //                 player.Damage(SumDamage(fieldCards04));
+        //                 fieldCards04=new int[]{JudgeList[i].Item2};
+        //                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,4);
+        //                 break;
+        //             default:
+        //                 break;
+        //         }
+        //     }
+        // }
         isResetButtonClick=false;
     }
+    
     public void Init()
     {
         fieldCards01=new int[1];
@@ -186,7 +300,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
         {
             c.GetComponent<CardClick>().enabled=false;
         }
-        List<(int,int)> JudgeList=new List<(int,int)>();　//tupleの第1要素：プレイヤーID　第2要素：プレイしたカード
+        JudgeList=new List<(int,int)>();　//tupleの第1要素：プレイヤーID　第2要素：プレイしたカード
         foreach(GameObject p in players)
         {
             PlayerDraw _player=p.GetComponent<PlayerDraw>();
@@ -199,7 +313,6 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
         for(int i=0;i<players.Length;i++) 
         {
             var ps=PhotonNetwork.PlayerList;
-            Player player=null; //今回のカードを出すプレイヤー
             foreach(var p in ps)
             {
                 if(p.ActorNumber==JudgeList[i].Item1)
@@ -227,7 +340,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
                 }
             }
             GameObject[] allCards=GameObject.FindGameObjectsWithTag("JudgeWaitCard");
-            GameObject moveCardObj=null;
+            // GameObject moveCardObj=null;
             foreach(GameObject card in allCards)
             {
                 if(card.GetComponent<Card>().GetCardNum()==JudgeList[i].Item2)
@@ -258,57 +371,36 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
                 }
                 isResetButtonClick=true;
                 yield return new WaitUntil(() =>!isResetButtonClick);
-                GameObject[] ResetButtons=GameObject.FindGameObjectsWithTag("ResetButton");
-                foreach(GameObject button in ResetButtons)
+                int toResetRow=0;
+                if(fieldCards01[0]==JudgeList[i].Item2)
                 {
-                    if(button.GetComponent<ButtonInit>().GetIsClicked())
-                    {
-                        foreach(GameObject c in fieldCardObjects[button.GetComponent<ButtonInit>().GetButtonNumber()])//連続でカード出すとエラー
-                        {
-                            c.transform.DOMove(new Vector3(c.transform.position.x-30,c.transform.position.y,c.transform.position.z),1f);
-                            yield return new WaitForSeconds(0.1f);
-                        }
-                        fieldCardObjects[button.GetComponent<ButtonInit>().GetButtonNumber()].Clear();
-                    }
-                    Destroy(button);
+                    toResetRow=1;
                 }
-                for(int j=0;j<fieldCardObjects.Length;j++)
+                else if(fieldCards02[0]==JudgeList[i].Item2)
                 {
-                    if(fieldCardObjects[j].Count==0)
+                    toResetRow=2;
+                }
+                else if(fieldCards03[0]==JudgeList[i].Item2)
+                {
+                    toResetRow=3;
+                }
+                else if(fieldCards04[0]==JudgeList[i].Item2)
+                {
+                    toResetRow=4;
+                }
+                Debug.Log("toResetRow"+toResetRow);
+                if(toResetRow!=0)
+                {
+                    foreach(GameObject c in fieldCardObjects[toResetRow-1])//連続でカード出すとエラー
                     {
-                        Debug.Log("j: "+j);
-                        switch(j)
-                        {
-                            case 0:
-                                player.Damage(SumDamage(fieldCards01));
-                                fieldCards01=new int[]{JudgeList[i].Item2};
-                                moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,1);   
-                                break;
-                            case 1:
-                                player.Damage(SumDamage(fieldCards02));
-                                fieldCards02=new int[]{JudgeList[i].Item2};
-                                moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,2);
-                                break;
-                            case 2:
-                                player.Damage(SumDamage(fieldCards03));
-                                fieldCards03=new int[]{JudgeList[i].Item2};
-                                moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,3);
-
-                                break;
-                            case 3:
-                                player.Damage(SumDamage(fieldCards04));
-                                fieldCards04=new int[]{JudgeList[i].Item2};
-                                moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,4);
-                                break;
-                            default:
-                                break;
-                        }
+                        c.transform.DOMove(new Vector3(c.transform.position.x-30,c.transform.position.y,c.transform.position.z),1f);
+                        yield return new WaitForSeconds(0.1f);
                     }
                 }
                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,1);
                 moveCardObj.tag="JudgeEndCard";
                 //movecardObjを1列目に移動
-                Debug.Log("a");
+                // Debug.Log("a");
                 continue;
             }
             moveCardObj.tag="JudgeEndCard";

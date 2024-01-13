@@ -44,16 +44,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             gameManager.GetComponent<FieldManager>().Init();
         }
     }
-    public GameObject GetDeck()
-    {
-        return deck;
-    }
-    public GameObject GetGameManager()
-    {
-        return gameManager;
-    }
-    public List<GameObject> GetPlayers()
-    {
-        return players;
-    }
+    // public GameObject GetDeck()
+    // {
+    //     return deck;
+    // }
+    // public GameObject GetGameManager()
+    // {
+    //     return gameManager;
+    // }
+    // public List<GameObject> GetPlayers()
+    // {
+    //     return players;
+    // }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using DG.Tweening;
-public class Card : MonoBehaviourPunCallbacks
+public class Card : MonoBehaviourPunCallbacks,IPunObservable
 {
     [SerializeField] private int cardNum;
     private Sprite[] images;
@@ -140,6 +140,21 @@ public class Card : MonoBehaviourPunCallbacks
             this.gameObject.tag="JudgeWaitCard";
         }
         //this.transform.DOMove(new Vector3(5f, 0f, 0f), 3f);
+    }
+        void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) 
+    {
+            if(stream.IsWriting)
+            {
+                stream.SendNext(cardNum);
+                stream.SendNext(cardRow);
+                stream.SendNext(cardColumn);
+            } 
+            else
+            {
+                cardNum=(int)stream.ReceiveNext();
+                cardRow=(int)stream.ReceiveNext();
+                cardColumn=(int)stream.ReceiveNext();
+            }
     }
     // [PunRPC]
     // public void AfterJudgeMove()//場の整数配列から出したいカードの場所を探して移動
