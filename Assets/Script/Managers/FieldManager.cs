@@ -32,6 +32,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
     private Player player;
     private List<(int,int)> JudgeList;
     GameObject moveCardObj;
+    private bool isFirstJudge;
 
 
     [SerializeField]private List<GameObject>[] fieldCardObjects=new List<GameObject>[]{new List<GameObject>(),new List<GameObject>(),
@@ -65,10 +66,10 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
             {
                 FieldCardsText.text=GetFieldCards();
             }
-            if(fieldCardObjects!=null)
-            {
-                judgeCardsText.text=GetFieldCardsObj();
-            }
+            // if(fieldCardObjects!=null)
+            // {
+            //     judgeCardsText.text=GetFieldCardsObj();
+            // }
             players=GameObject.FindGameObjectsWithTag("Player");
             if(players!=null)
             {
@@ -186,66 +187,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
             }
             Destroy(button);
         }
-        
-        // swtich(buttonIndex)
-        // {
-        //     case 0:
-        //         player.Damage(SumDamage(fieldCards01));
-        //         fieldCards01=new int[]{newCard};
-        //         moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,1);   
-        //         break;
-        //     case 1:
-        //         player.Damage(SumDamage(fieldCards02));
-        //         fieldCards02=new int[]{newCard};
-        //         moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,2);
-        //         break;
-        //     case 2:
-        //         player.Damage(SumDamage(fieldCards03));
-        //         fieldCards03=new int[]{newCard};
-        //         moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,3);
 
-        //         break;
-        //     case 3:
-        //         player.Damage(SumDamage(fieldCards04));
-        //         fieldCards04=new int[]{newCard};
-        //         moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,4);
-        //         break;
-        //     default:
-        //         break;
-        // }
-        // for(int j=0;j<fieldCardObjects.Length;j++)
-        // {
-        //     if(fieldCardObjects[j].Count==0)
-        //     {
-        //         Debug.Log("j: "+j);
-        //         switch(j)
-        //         {
-        //             case 0:
-        //                 player.Damage(SumDamage(fieldCards01));
-        //                 fieldCards01=new int[]{JudgeList[i].Item2};
-        //                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,1);   
-        //                 break;
-        //             case 1:
-        //                 player.Damage(SumDamage(fieldCards02));
-        //                 fieldCards02=new int[]{JudgeList[i].Item2};
-        //                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,2);
-        //                 break;
-        //             case 2:
-        //                 player.Damage(SumDamage(fieldCards03));
-        //                 fieldCards03=new int[]{JudgeList[i].Item2};
-        //                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,3);
-
-        //                 break;
-        //             case 3:
-        //                 player.Damage(SumDamage(fieldCards04));
-        //                 fieldCards04=new int[]{JudgeList[i].Item2};
-        //                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,4);
-        //                 break;
-        //             default:
-        //                 break;
-        //         }
-        //     }
-        // }
         isResetButtonClick=false;
     }
     public void Init()
@@ -256,6 +198,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
         fieldCards03=new int[1];
         fieldCards04=new int[1];
         isResetButtonClick=false;
+        isFirstJudge=true;
         for(int i=0;i<fieldCardObjects.Length;i++)
         {
             fieldCardObjects[i]=new List<GameObject>();
@@ -304,10 +247,23 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
     [PunRPC]
     public void Judge()
     {
+        // if(isFirstJudge)
+        // {
+        //     isFirstJudge=false;
+        //     GameObject[] initialFieldCards=GameObject.FindGameObjectsWithTag("FieldCard");
+        //     foreach(GameObject card in initialFieldCards)
+        //     {
+        //         if(card.GetComponent<Card>().GetCardRow()!=0)
+        //         {
+        //             fieldCardObjects[card.GetComponent<Card>().GetCardRow()-1].Add(card);                
+        //         }
+        //     }
+        // }
         StartCoroutine(JudgeCoroutine());
     }
     IEnumerator JudgeCoroutine()
     {
+
         GameObject[] cards=GameObject.FindGameObjectsWithTag("Card");
         foreach(GameObject c in cards)
         {
@@ -323,6 +279,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
             _player.ResetPlayedCard();
         }
         JudgeList.Sort((tuple1,tuple2) => tuple1.Item2.CompareTo(tuple2.Item2));//第2要素でソート
+        List<GameObject> moveCardObjects=new List<GameObject>();
         for(int i=0;i<players.Length;i++) 
         {
             var ps=PhotonNetwork.PlayerList;
@@ -361,6 +318,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
                     moveCardObj=card;
                 }
             }
+            moveCardObjects.Add(moveCardObj);
             yield return new WaitForSeconds(0.7f);
             moveCardObj.GetComponent<Card>().Flip(true);
 
@@ -409,6 +367,7 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
                         c.transform.DOMove(new Vector3(c.transform.position.x-30,c.transform.position.y,c.transform.position.z),1f);
                         yield return new WaitForSeconds(0.1f);
                     }
+                    fieldCardObjects[toResetRow-1].Clear();
                 }
                 moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,1);
                 moveCardObj.tag="JudgeEndCard";
@@ -423,48 +382,98 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
                 case 0:
                     fieldCards01=AddFieldCard(fieldCards01,JudgeList[i].Item2);
                     moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,1);
-                    moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,fieldCards01.Length);
+                    //moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,fieldCards01.Length);
+                    judgeCardsText.text+="setRC";
                     if(fieldCards01.Length==6)
                     {
                         player.Damage(SumDamage(fieldCards01));
                         fieldCards01=ResetFieldCard(fieldCards01);
+                        moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,6);
+                    
                     }
                     break;
                 case 1:
                     fieldCards02=AddFieldCard(fieldCards02,JudgeList[i].Item2);
                     moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,2);
-                    moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,fieldCards02.Length);
+                    //moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,fieldCards02.Length);
+                    judgeCardsText.text+="setRC";
                     if(fieldCards02.Length==6)
                     {
                         player.Damage(SumDamage(fieldCards02));
                         fieldCards02=ResetFieldCard(fieldCards02);
+                        moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,6);
+                    
                     }
                     break;
                 case 2:
                     fieldCards03=AddFieldCard(fieldCards03,JudgeList[i].Item2);    
                     moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,3);
-                    moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,fieldCards03.Length);               
+                    //moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,fieldCards03.Length);               
+                    judgeCardsText.text+="setRC";
                     if(fieldCards03.Length==6)
                     {
                         player.Damage(SumDamage(fieldCards03));
                         fieldCards03=ResetFieldCard(fieldCards03);
+                        moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,6);
+                    
                     }
                     break;
                 case 3:
                     fieldCards04=AddFieldCard(fieldCards04,JudgeList[i].Item2);
                     moveCardObj.GetComponent<PhotonView>().RPC("SetCardRow",RpcTarget.All,4);
-                    moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,fieldCards04.Length);
+                    //moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,fieldCards04.Length);
+                    judgeCardsText.text+="setRC";
                     if(fieldCards04.Length==6)
                     {
                         player.Damage(SumDamage(fieldCards04));
                         fieldCards04=ResetFieldCard(fieldCards04);
+                        moveCardObj.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,6);
+                        
                     }
                     break;
                 default:
                     break;
             }
+
             yield return new WaitForSeconds(0.5f);        
         }
+        foreach(GameObject card in moveCardObjects)
+        {
+            int column=0;
+            for(int j=0;j<fieldCards01.Length;j++)
+            {
+                if(card.GetComponent<Card>().GetCardNum()==fieldCards01[j])
+                {
+                    column=j+1;
+                }
+            }
+            for(int j=0;j<fieldCards02.Length;j++)
+            {
+                if(card.GetComponent<Card>().GetCardNum()==fieldCards02[j])
+                {
+                    column=j+1;
+                }
+            }
+            for(int j=0;j<fieldCards03.Length;j++)
+            {
+                if(card.GetComponent<Card>().GetCardNum()==fieldCards03[j])
+                {
+                    column=j+1;
+                }
+            }
+            for(int j=0;j<fieldCards04.Length;j++)
+            {
+                if(card.GetComponent<Card>().GetCardNum()==fieldCards04[j])
+                {
+                    column=j+1;
+                }
+            }
+            if(column>0 && card.GetComponent<Card>().GetCardColumn()!=6)
+            {
+                card.GetComponent<PhotonView>().RPC("SetCardColumn",RpcTarget.All,column);
+            }
+        }
+        moveCardObjects.Clear();
         yield return StartCoroutine(JudgeCardMoveCoroutine());
         cards=GameObject.FindGameObjectsWithTag("Card");
         foreach(GameObject c in cards)
@@ -476,6 +485,8 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
 
     IEnumerator JudgeCardMoveCoroutine()
     {
+
+
         yield return new WaitForSeconds(1.0f);
         List<GameObject> judgeEndCardObj=GameObject.FindGameObjectsWithTag("JudgeEndCard").ToList();
         judgeEndCardObj.Sort((card1,card2)=>card1.GetComponent<Card>().GetCardNum().CompareTo(card2.GetComponent<Card>().GetCardNum()));
@@ -546,6 +557,11 @@ public class FieldManager : MonoBehaviourPunCallbacks,IPunObservable
         return newFieldCard;
     }
 
+    [PunRPC]
+    public void AddFieldCardObj(GameObject card,int index)
+    {
+        fieldCardObjects[index].Add(card);
+    }
     public int[] ResetFieldCard(int[] fieldcard) //場の整数列を末項だけにする
     {
         int[] newFieldCard=new int[1];

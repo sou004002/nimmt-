@@ -142,6 +142,10 @@ public class Card : MonoBehaviourPunCallbacks
         //this.transform.DOMove(new Vector3(5f, 0f, 0f), 3f);
     }
 
+    // void OnBecameInvisible()
+    // {
+    //     Destroy(this.gameObject);
+    // }
     // [PunRPC]
     // public void AfterJudgeMove()//場の整数配列から出したいカードの場所を探して移動
     // {
