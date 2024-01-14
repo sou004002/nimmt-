@@ -16,6 +16,12 @@ TagManager:
   - ResetButton
   - Canvas
   - GabageCard
+  - AlertText
+  - PoseView
+  - PlayCardText
+  - ResetButtonText
+  - ResultView
+  - WinnerText
   layers:
   - Default
   - TransparentFX

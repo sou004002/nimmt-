@@ -49,6 +49,7 @@ MonoBehaviour:
   FieldCardsText: {fileID: 4284400570660636394}
   judgeCardsText: {fileID: 930231074926359903}
   judgePlayerText: {fileID: 2167671035802761253}
+  PlayCardWaitText: {fileID: 4561183238443005919, guid: ece6e47a3429e6d42b9b0edf9fd95a30, type: 3}
 --- !u!114 &4468592065250384108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,7 +359,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2801022117688263804
 RectTransform:
   m_ObjectHideFlags: 0

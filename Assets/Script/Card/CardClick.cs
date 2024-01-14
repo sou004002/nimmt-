@@ -15,6 +15,8 @@ public class CardClick : MonoBehaviourPunCallbacks,IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        GameObject playCardWaitText=GameObject.FindWithTag("PlayCardText");
+        Destroy(playCardWaitText);
         int card=GetComponent<Card>().GetCardNum();
         players=GameObject.FindGameObjectsWithTag("Player");
         foreach(GameObject obj in players)

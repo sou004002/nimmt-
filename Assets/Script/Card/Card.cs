@@ -10,7 +10,6 @@ public class Card : MonoBehaviourPunCallbacks
     private GameObject frontImage;
     private GameObject backImage;
     private bool isDrawing;
-    private bool isUpdate;
 
     [SerializeField]private int cardRow=0;
     [SerializeField]private int cardColumn=0;
@@ -28,7 +27,6 @@ public class Card : MonoBehaviourPunCallbacks
     void Start()
     {
         isDrawing=true;
-        isUpdate=false;
     }
     void Update()
     {

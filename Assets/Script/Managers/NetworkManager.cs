@@ -9,9 +9,7 @@ using UnityEngine.UI;
 // MonoBehaviourPunCallbacksを継承して、PUNのコールバックを受け取れるようにする
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField]private GameObject camera;
     private int playerOffset=20;//プレイヤー同士の間隔
-    private static int nextID=1;
     private GameObject deck;
     private GameObject gameManager;
     private List<GameObject> players=new List<GameObject>();
@@ -35,26 +33,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         GameObject player=PhotonNetwork.Instantiate("Player", position, Quaternion.identity);
         players.Add(player);
         //1人目なら場の生成
-        //それ以外なら、山札から手札配る
         if(playerNumber==1)
         {
             deck=PhotonNetwork.Instantiate("Deck",Vector3.zero,Quaternion.identity);
             gameManager=PhotonNetwork.Instantiate("GameManager",new Vector3(-5,-5,0),Quaternion.identity);
-            //deck.GetComponent<Deck>().generateDeckArray();
-            //gameManager.GetComponent<FieldManager>().Init();
         }
-        //player.GetComponent<PlayerDraw>().DrawHands(deck);
     }
-    // public GameObject GetDeck()
-    // {
-    //     return deck;
-    // }
-    // public GameObject GetGameManager()
-    // {
-    //     return gameManager;
-    // }
-    // public List<GameObject> GetPlayers()
-    // {
-    //     return players;
-    // }
 }

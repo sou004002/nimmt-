@@ -55,6 +55,11 @@ MonoBehaviour:
   - IsResetButtonClickToFalse
   - AddFieldCardObj
   - ClearFieldCard
+  - CanDrawToTrue
+  - DestroyGabageCard
+  - CustomAlertText
+  - FlipPoseView
+  - ResultViewDisplay
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

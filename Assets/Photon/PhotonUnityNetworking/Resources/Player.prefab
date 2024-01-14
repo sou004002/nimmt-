@@ -380,6 +380,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: 5342335404989870252, guid: 2417786af10b4564c9b9cdf47cc75db7, type: 3}
+  PlayCardWaitText: {fileID: 4561183238443005919, guid: ece6e47a3429e6d42b9b0edf9fd95a30, type: 3}
 --- !u!114 &7526019106219682190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -393,3 +394,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: -2488769709405504252, guid: 32d3fa473eeef7b4bb41dc37775830ad, type: 3}
+  buttonText: {fileID: 5783786007713787427, guid: ef3437e610491cf4bb8be86021b78043, type: 3}

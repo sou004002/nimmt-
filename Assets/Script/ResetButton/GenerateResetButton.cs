@@ -4,9 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
+using TMPro;
 public class GenerateResetButton : MonoBehaviourPunCallbacks
 {
     [SerializeField] RegisterUnityAction button;
+    [SerializeField] GameObject buttonText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +39,9 @@ public class GenerateResetButton : MonoBehaviourPunCallbacks
                 rectTransform.anchoredPosition = position;
                 b.buttonAction=ButtonScript;
             }
+            GameObject buttonTextObj=Instantiate(buttonText,parent.transform);
+            buttonTextObj.GetComponent<TextMeshProUGUI>().text="取る行を選んでください";
+
         }
     }
 
